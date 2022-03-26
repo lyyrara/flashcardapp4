@@ -9,9 +9,12 @@
         android:id="@+id/flashcard_question_edittext"
         android:layout_width="match_parent"
         android:layout_height="200dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
         android:gravity="center"
         android:hint="Enter The Question Here!"
-        android:layout_margin="20dp"
         android:textSize="40sp" />
 
     <EditText
@@ -19,7 +22,10 @@
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_below="@id/flashcard_question_edittext"
-        android:layout_margin="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
         android:gravity="center"
         android:hint="Enter The Answer Here!"
         android:textSize="40sp" />
@@ -29,7 +35,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/icon_save"
-        android:layout_margin="10dp"
+        android:layout_margin="30dp"
         android:layout_alignParentBottom="true"/>
 
 
@@ -38,7 +44,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/icon_cancel"
-        android:layout_margin="10dp"
+        android:layout_margin="30dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"/>
 

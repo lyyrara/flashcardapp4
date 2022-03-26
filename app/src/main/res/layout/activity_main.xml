@@ -3,7 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    >
+
+    <TextView
+        android:id="@+id/timer"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:gravity="center"
+        android:text=""
+        android:textSize="30sp" />
 
     <TextView
         android:id="@+id/flashcard_question"
@@ -11,12 +20,15 @@
         android:layout_height="200dp"
         android:gravity="center"
         android:text="Who is the 44th President of the United States?"
-        android:textSize="40sp" />
+        android:textSize="40sp"
+        android:layout_marginTop="100dp"
+        android:background="@drawable/card_background"/>
 
     <TextView
         android:id="@+id/flashcard_answer"
         android:layout_width="match_parent"
         android:layout_height="200dp"
+        android:layout_marginTop="100dp"
         android:gravity="center"
         android:text="Barack Obama"
         android:textSize="40sp" />
@@ -28,14 +40,14 @@
         android:src="@drawable/icon_add"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_margin="10dp"/>
+        android:layout_margin="30dp"/>
 
     <ImageView
         android:id="@+id/flashcard_edit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/icon_edit"
-        android:layout_margin="10dp"
+        android:layout_margin="30dp"
         android:layout_alignParentBottom="true"
         />
 
@@ -44,9 +56,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/icon_next"
-        android:layout_margin="10dp"
+        android:layout_margin="30dp"
         android:layout_below="@id/flashcard_question"
         android:layout_alignParentRight="true"
+        />
+
+    <ImageView
+        android:id="@+id/delete_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/icon_delete"
+        android:layout_margin="30dp"
+        android:layout_below="@id/flashcard_question"
+        android:layout_alignParentLeft="true"
         />
 
 
