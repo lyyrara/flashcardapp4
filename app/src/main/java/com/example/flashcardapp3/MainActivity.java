@@ -3,9 +3,14 @@ package com.example.flashcardapp3;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.animation.Animator;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.View;
+import android.view.ViewAnimationUtils;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -18,6 +23,9 @@ public class MainActivity extends AppCompatActivity {
     FlashcardDatabase flashcardDatabase;
     List<Flashcard> allFlashcards;
     int currentCardDisplayedIndex = 0;
+    CountDownTimer countDownTimer;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +36,19 @@ public class MainActivity extends AppCompatActivity {
         flashcardQuestion = findViewById(R.id.flashcard_question);
         flashcardAnswer = findViewById(R.id.flashcard_answer);
 
+        View answerSideView = findViewById(R.id.flashcard_answer);
+        View questionSideView = findViewById(R.id.flashcard_question);
+
+        countDownTimer = new CountDownTimer(16000, 1000) {
+            public void onTick(long millisUntilFinished) {
+                ((TextView) findViewById(R.id.timer)).setText("" + millisUntilFinished / 1000);
+            }
+
+            public void onFinish() {
+            }
+        };
+
+
         flashcardAnswer.setVisibility(View.INVISIBLE);
 
         flashcardQuestion.setOnClickListener(new View.OnClickListener() {
@@ -35,6 +56,23 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 flashcardQuestion.setVisibility(View.INVISIBLE);
                 flashcardAnswer.setVisibility(View.VISIBLE);
+
+// get the center for the clipping circle
+                int cx = answerSideView.getWidth() / 2;
+                int cy = answerSideView.getHeight() / 2;
+
+// get the final radius for the clipping circle
+                float finalRadius = (float) Math.hypot(cx, cy);
+
+// create the animator for this view (the start radius is zero)
+                Animator anim = ViewAnimationUtils.createCircularReveal(answerSideView, cx, cy, 0f, finalRadius);
+
+// hide the question and show the answer to prepare for playing the animation!
+                questionSideView.setVisibility(View.INVISIBLE);
+                answerSideView.setVisibility(View.VISIBLE);
+
+                anim.setDuration(3000);
+                anim.start();
             }
         });
 
@@ -51,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, AddCardActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.right_in, R.anim.left_out);
                 //MainActivity.this.startActivity(intent);
                 startActivityForResult(intent, 100);
             }
@@ -75,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.next_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if (allFlashcards != null && allFlashcards.size() > 0) {
                     ((TextView) findViewById(R.id.flashcard_question)).setText(allFlashcards.get(0).getQuestion());
                     ((TextView) findViewById(R.id.flashcard_answer)).setText(allFlashcards.get(0).getAnswer());
@@ -94,12 +135,66 @@ public class MainActivity extends AppCompatActivity {
 
 
                 // set the question and answer TextViews with data from the database
+
+
+                final Animation leftOutAnim = AnimationUtils.loadAnimation(v.getContext(), R.anim.left_out);
+                final Animation rightInAnim = AnimationUtils.loadAnimation(v.getContext(), R.anim.right_in);
+
+                leftOutAnim.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        // this method is called when the animation first starts
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        // this method is called when the animation is finished playing
+                        findViewById(R.id.flashcard_question).startAnimation(rightInAnim);
+
+                        allFlashcards = flashcardDatabase.getAllCards();
+                        Flashcard flashcard = allFlashcards.get(currentCardDisplayedIndex);
+
+                        ((TextView) findViewById(R.id.flashcard_question)).setText(flashcard.getAnswer());
+                        ((TextView) findViewById(R.id.flashcard_answer)).setText(flashcard.getQuestion());
+
+                        flashcardQuestion.setVisibility(View.VISIBLE);
+                        flashcardAnswer.setVisibility(View.INVISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                        // we don't need to worry about this method
+                    }
+                });
+                findViewById(R.id.flashcard_question).startAnimation(leftOutAnim);
+            }
+
+
+        });
+
+        findViewById(R.id.delete_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                flashcardDatabase.deleteCard(((TextView) findViewById(R.id.flashcard_question)).getText().toString());
+                currentCardDisplayedIndex--;
                 allFlashcards = flashcardDatabase.getAllCards();
                 Flashcard flashcard = allFlashcards.get(currentCardDisplayedIndex);
 
                 ((TextView) findViewById(R.id.flashcard_question)).setText(flashcard.getAnswer());
                 ((TextView) findViewById(R.id.flashcard_answer)).setText(flashcard.getQuestion());
+
+                if(currentCardDisplayedIndex == 0) {
+                    ((TextView) findViewById(R.id.flashcard_question)).setText("");
+                    ((TextView) findViewById(R.id.flashcard_answer)).setText("");
                 }
+                if(currentCardDisplayedIndex < 0) {
+                    Snackbar.make(flashcardQuestion,
+                            "You've reached the end of the cards, going back to start.",
+                            Snackbar.LENGTH_SHORT)
+                            .show();
+                    currentCardDisplayedIndex = 0;
+                }
+            }
         });
 
     }
