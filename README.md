@@ -3,7 +3,7 @@
 ## Lab 4
 
 ### App Description
-`TODO://` Add app description
+Animations
 
 ### App Walk-though
 
