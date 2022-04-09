@@ -54,8 +54,8 @@ public class MainActivity extends AppCompatActivity {
         flashcardQuestion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flashcardQuestion.setVisibility(View.INVISIBLE);
-                flashcardAnswer.setVisibility(View.VISIBLE);
+                flashcardQuestion.setVisibility(View.VISIBLE);
+                flashcardAnswer.setVisibility(View.INVISIBLE);
 
 // get the center for the clipping circle
                 int cx = answerSideView.getWidth() / 2;
@@ -68,8 +68,27 @@ public class MainActivity extends AppCompatActivity {
                 Animator anim = ViewAnimationUtils.createCircularReveal(answerSideView, cx, cy, 0f, finalRadius);
 
 // hide the question and show the answer to prepare for playing the animation!
-                questionSideView.setVisibility(View.INVISIBLE);
-                answerSideView.setVisibility(View.VISIBLE);
+                findViewById(R.id.flashcard_question).setCameraDistance(25000);
+                findViewById(R.id.flashcard_answer).setCameraDistance(25000);
+                questionSideView.animate()
+                        .rotationY(90)
+                        .setDuration(200)
+                        .withEndAction(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        questionSideView.setVisibility(View.INVISIBLE);
+                                        findViewById(R.id.flashcard_answer).setVisibility(View.VISIBLE);
+                                        // second quarter turn
+                                        findViewById(R.id.flashcard_answer).setRotationY(-90);
+                                        findViewById(R.id.flashcard_answer).animate()
+                                                .rotationY(0)
+                                                .setDuration(200)
+                                                .start();
+                                    }
+                                }
+                        ).start();
+
 
                 anim.setDuration(3000);
                 anim.start();
@@ -81,6 +100,27 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 flashcardQuestion.setVisibility(View.VISIBLE);
                 flashcardAnswer.setVisibility(View.INVISIBLE);
+                findViewById(R.id.flashcard_question).setCameraDistance(25000);
+                findViewById(R.id.flashcard_answer).setCameraDistance(25000);
+                answerSideView.animate()
+                        .rotationY(90)
+                        .setDuration(200)
+                        .withEndAction(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        answerSideView.setVisibility(View.INVISIBLE);
+                                        findViewById(R.id.flashcard_question).setVisibility(View.VISIBLE);
+                                        // second quarter turn
+                                        findViewById(R.id.flashcard_question).setRotationY(-90);
+                                        findViewById(R.id.flashcard_question).animate()
+                                                .rotationY(0)
+                                                .setDuration(200)
+                                                .start();
+                                    }
+                                }
+                        ).start();
+
             }
         });
 
@@ -113,6 +153,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         findViewById(R.id.next_button).setOnClickListener(new View.OnClickListener() {
+            private void startTimer() {
+                countDownTimer.cancel();
+                countDownTimer.start();
+            }
             @Override
             public void onClick(View v) {
 
@@ -136,7 +180,6 @@ public class MainActivity extends AppCompatActivity {
 
                 // set the question and answer TextViews with data from the database
 
-
                 final Animation leftOutAnim = AnimationUtils.loadAnimation(v.getContext(), R.anim.left_out);
                 final Animation rightInAnim = AnimationUtils.loadAnimation(v.getContext(), R.anim.right_in);
 
@@ -154,11 +197,10 @@ public class MainActivity extends AppCompatActivity {
                         allFlashcards = flashcardDatabase.getAllCards();
                         Flashcard flashcard = allFlashcards.get(currentCardDisplayedIndex);
 
-                        ((TextView) findViewById(R.id.flashcard_question)).setText(flashcard.getAnswer());
-                        ((TextView) findViewById(R.id.flashcard_answer)).setText(flashcard.getQuestion());
+                        ((TextView) findViewById(R.id.flashcard_question)).setText(flashcard.getQuestion());
+                        ((TextView) findViewById(R.id.flashcard_answer)).setText(flashcard.getAnswer());
 
-                        flashcardQuestion.setVisibility(View.VISIBLE);
-                        flashcardAnswer.setVisibility(View.INVISIBLE);
+                        startTimer();
                     }
 
                     @Override
@@ -178,22 +220,18 @@ public class MainActivity extends AppCompatActivity {
                 flashcardDatabase.deleteCard(((TextView) findViewById(R.id.flashcard_question)).getText().toString());
                 currentCardDisplayedIndex--;
                 allFlashcards = flashcardDatabase.getAllCards();
-                Flashcard flashcard = allFlashcards.get(currentCardDisplayedIndex);
-
-                ((TextView) findViewById(R.id.flashcard_question)).setText(flashcard.getAnswer());
-                ((TextView) findViewById(R.id.flashcard_answer)).setText(flashcard.getQuestion());
-
-                if(currentCardDisplayedIndex == 0) {
+                if(currentCardDisplayedIndex > 0){
+                    Flashcard flashcard = allFlashcards.get(currentCardDisplayedIndex);
+                }
+                else if(currentCardDisplayedIndex == 0) {
                     ((TextView) findViewById(R.id.flashcard_question)).setText("");
                     ((TextView) findViewById(R.id.flashcard_answer)).setText("");
-                }
-                if(currentCardDisplayedIndex < 0) {
                     Snackbar.make(flashcardQuestion,
                             "You've reached the end of the cards, going back to start.",
                             Snackbar.LENGTH_SHORT)
                             .show();
-                    currentCardDisplayedIndex = 0;
                 }
+
             }
         });
 
